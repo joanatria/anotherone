@@ -3,6 +3,7 @@ import { Container, Row, Col, Form, Button, Alert } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { useSignupMutation } from '../appApi';
+import emailjs from 'emailjs-com';
 
 const SignupContainer = styled(Container)`
   @media screen and (max-width: 756px) {
@@ -27,9 +28,29 @@ const Signup = () => {
   const [name, setName] = useState('');
   const [signup, { error, isLoading, isError }] = useSignupMutation();
 
-  function handleSignup(e) {
+  async function sendVerificationEmail() {
+    try {
+      const templateParams = {
+        to_email: email,
+        from_name: 'Your App',
+        subject: 'Welcome to Your App',
+        message: 'Hello world!',
+      };
+      const response = await emailjs.send('service_eccrq4r', 'template_nj638eg', templateParams, 'Ime8DhelVtHYCGMCR');
+      console.log('Email sent:', response);
+    } catch (error) {
+      console.error('Failed to send email:', error);
+    }
+  }
+
+  async function handleSignup(e) {
     e.preventDefault();
-    signup({ name, email, password });
+    const response = await signup({ name, email, password });
+
+    if (response.data) {
+      // Send verification email
+      sendVerificationEmail();
+    }
   }
 
   return (

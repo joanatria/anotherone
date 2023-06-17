@@ -52,13 +52,12 @@ function CartPage() {
 
   return (
     <Container style={{ minHeight: '95vh' }} className="cart-container">
-      <style>{styles}</style>
       <Row>
         <Col>
-          <h1 className="pt-2 h3">Shopping Bag</h1>
+          <h1 className="pt-2 h3">Shopping cart</h1>
           {cart.length === 0 ? (
             <Alert variant="info">
-              Shopping bag is empty. Add products to your bag.
+              Shopping cart is empty. Add products to your cart
             </Alert>
           ) : (
             <Elements stripe={stripePromise}>
