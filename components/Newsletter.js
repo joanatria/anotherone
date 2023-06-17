@@ -1,5 +1,6 @@
 import { Send } from '@mui/icons-material';
 import styled from "styled-components";
+import emailjs from 'emailjs-com';
 
 const Container = styled.div`
   height: 60vh;
@@ -20,7 +21,7 @@ const Desc = styled.div`
   margin-bottom: 20px;
 `;
 
-const InputContainer = styled.div`
+const InputContainer = styled.form`
   width: 50%;
   height: 40px;
   background-color: white;
@@ -45,13 +46,29 @@ const Button = styled.button`
 `;
 
 const Newsletter = () => {
+  const sendEmail = (e) => {
+    e.preventDefault();
+
+    emailjs.sendForm('service_eccrq4r', 'template_acm84ll', e.target, 'Ime8DhelVtHYCGMCR')
+      .then((result) => {
+        console.log('Email sent successfully!');
+        // You can add further logic here, such as showing a success message to the user.
+      })
+      .catch((error) => {
+        console.error('Error sending email:', error);
+        // You can handle the error here, such as displaying an error message to the user.
+      });
+
+    e.target.reset();
+  };
+
   return (
     <Container>
       <Title>Newsletter</Title>
       <Desc>Get timely updates from your favorite products.</Desc>
-      <InputContainer>
-        <Input placeholder="Your email" />
-        <Button>
+      <InputContainer onSubmit={sendEmail}>
+        <Input type="email" name="email" placeholder="Your email" required />
+        <Button type="submit">
           <Send />
         </Button>
       </InputContainer>

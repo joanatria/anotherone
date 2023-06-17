@@ -29,6 +29,16 @@ const NavLinkCustom = styled(Nav.Link)`
     outline: 2px solid gray !important;
     font-weight: bold;
   }
+
+  &&:hover {
+    background-color: transparent !important;
+  }
+
+  &&:focus,
+  &&:active {
+    box-shadow: none !important;
+    background-color: transparent !important;
+  }
   
   &&:focus {
     outline-offset: -2px !important;
