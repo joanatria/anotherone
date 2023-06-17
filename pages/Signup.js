@@ -16,7 +16,7 @@ const SignupContainer = styled(Container)`
 const FormContainer = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: center; /* Align items to the center */
+  align-items: center;
   justify-content: flex-start;
   height: 100vh;
   margin-top: 50px;
@@ -28,30 +28,30 @@ const Signup = () => {
   const [name, setName] = useState('');
   const [signup, { error, isLoading, isError }] = useSignupMutation();
 
-  async function sendVerificationEmail() {
+  const sendEmail = async () => {
     try {
       const templateParams = {
-        to_email: email,
-        from_name: 'Your App',
-        subject: 'Welcome to Your App',
-        message: 'Hello world!',
+        email: email, // Pass the email address as a variable
       };
+
+      console.log(templateParams);
+
       const response = await emailjs.send('service_eccrq4r', 'template_nj638eg', templateParams, 'Ime8DhelVtHYCGMCR');
       console.log('Email sent:', response);
     } catch (error) {
       console.error('Failed to send email:', error);
     }
-  }
+  };
 
-  async function handleSignup(e) {
+  const handleSignup = async (e) => {
     e.preventDefault();
     const response = await signup({ name, email, password });
 
     if (response.data) {
       // Send verification email
-      sendVerificationEmail();
+      sendEmail();
     }
-  }
+  };
 
   return (
     <SignupContainer>

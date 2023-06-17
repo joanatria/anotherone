@@ -4,8 +4,8 @@ import { LinkContainer } from 'react-router-bootstrap';
 import styled from 'styled-components';
 
 const StyledSimilarProductCard = styled(Card)`
-  width: 150px;
-  height: auto;
+  width: 100%;
+  height: 100%;
   border: none;
   transition: box-shadow 0.3s ease-in-out;
   display: flex;
@@ -74,3 +74,4 @@ function SimilarProduct({ _id, name, category, pictures }) {
 }
 
 export default SimilarProduct;
+

@@ -48,8 +48,17 @@ const Button = styled.button`
 const Newsletter = () => {
   const sendEmail = (e) => {
     e.preventDefault();
-
-    emailjs.sendForm('service_eccrq4r', 'template_acm84ll', e.target, 'Ime8DhelVtHYCGMCR')
+  
+    const email = e.target.email.value; // Get the value of the email input field
+  
+    console.log(email);
+  
+    const templateParams = {
+      email: email // Pass the email address as a variable
+    };
+  
+    emailjs
+      .send('service_eccrq4r', 'template_acm84ll', templateParams, 'Ime8DhelVtHYCGMCR')
       .then((result) => {
         console.log('Email sent successfully!');
         // You can add further logic here, such as showing a success message to the user.
@@ -58,9 +67,9 @@ const Newsletter = () => {
         console.error('Error sending email:', error);
         // You can handle the error here, such as displaying an error message to the user.
       });
-
+  
     e.target.reset();
-  };
+  };  
 
   return (
     <Container>

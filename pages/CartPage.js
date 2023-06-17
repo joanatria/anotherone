@@ -1,13 +1,12 @@
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Alert, Col, Container, Row, Table } from 'react-bootstrap';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import CheckoutForm from '../components/CheckoutForm';
 import {
   useIncreaseCartProductMutation,
   useDecreaseCartProductMutation,
-  useRemoveFromCartMutation,
 } from '../appApi';
 
 const stripePromise = loadStripe(
@@ -33,6 +32,10 @@ const styles = `
     max-height: 70vh;
     overflow: scroll;
   }
+  
+  .page-label {
+    margin-bottom: 10px;
+  }
 `;
 
 function CartPage() {
@@ -42,31 +45,46 @@ function CartPage() {
   let cart = products.filter((product) => userCartObj[product._id] != null);
   const [increaseCart] = useIncreaseCartProductMutation();
   const [decreaseCart] = useDecreaseCartProductMutation();
-  const [removeFromCart, { isLoading }] = useRemoveFromCartMutation();
+  const dispatch = useDispatch();
+  const [total, setTotal] = useState(0);
+
+  useEffect(() => {
+    calculateTotal();
+  }, [cart]);
+
+  function calculateTotal() {
+    let totalValue = 0;
+    for (const item of cart) {
+      const quantity = user.cart[item._id];
+      totalValue += item.price * quantity;
+    }
+    setTotal(totalValue);
+  }
 
   function handleDecrease(product) {
-    const quantity = user.cart.count;
-    if (quantity <= 0) return alert("Can't proceed");
+    const quantity = userCartObj[product.productId];
+    if (quantity <= 1) return;
     decreaseCart(product);
+  }
+  
+
+  function handleRemove(productId) {
+    const updatedCart = { ...user.cart };
+    delete updatedCart[productId];
+    dispatch({ type: 'UPDATE_CART', payload: updatedCart });
   }
 
   return (
     <Container style={{ minHeight: '95vh' }} className="cart-container">
+      <style>{styles}</style>
       <Row>
         <Col>
-          <h1 className="pt-2 h3">Shopping cart</h1>
+          <h1 className="pt-2 h3 page-label" style={{ fontSize: '40px', marginBottom: '20px' }}>Shopping cart</h1>
           {cart.length === 0 ? (
-            <Alert variant="info">
-              Shopping cart is empty. Add products to your cart
+            <Alert variant="info" className="page-label">
+              Shopping cart is empty. Add products to your cart.
             </Alert>
           ) : (
-            <Elements stripe={stripePromise}>
-              <CheckoutForm />
-            </Elements>
-          )}
-        </Col>
-        {cart.length > 0 && (
-          <Col md={5}>
             <>
               <Table responsive="sm" className="cart-table">
                 <thead>
@@ -81,22 +99,14 @@ function CartPage() {
                 <tbody>
                   {/* loop through cart products */}
                   {cart.map((item) => (
-                    <tr>
+                    <tr key={item._id}>
                       <td>&nbsp;</td>
                       <td>
-                        {!isLoading && (
-                          <i
-                            className="fa fa-times"
-                            style={{ marginRight: 10, cursor: 'pointer' }}
-                            onClick={() =>
-                              removeFromCart({
-                                productId: item._id,
-                                price: item.price,
-                                userId: user._id,
-                              })
-                            }
-                          ></i>
-                        )}
+                        <i
+                          className="fa fa-times"
+                          style={{ marginRight: 10, cursor: 'pointer' }}
+                          onClick={() => handleRemove(item._id)}
+                        ></i>
                         <img
                           src={item.pictures[0].url}
                           alt=""
@@ -114,9 +124,11 @@ function CartPage() {
                             className="fa fa-minus-circle"
                             onClick={() =>
                               handleDecrease({
-                                productId: item._id,
-                                price: item.price,
-                                userId: user._id,
+                                product: {
+                                  productId: item._id,
+                                  price: item.price,
+                                  userId: user._id,
+                                }
                               })
                             }
                           ></i>
@@ -139,11 +151,14 @@ function CartPage() {
                 </tbody>
               </Table>
               <div>
-                <h3 className="h4 pt-4">Total: ${user.cart.total}</h3>
+                <h3 className="h4 pt-4 page-label" style={{ fontSize: '24px', marginBottom: '50px' }}>{total}.00 USD</h3>
               </div>
+              <Elements stripe={stripePromise}>
+                <CheckoutForm />
+              </Elements>
             </>
-          </Col>
-        )}
+          )}
+        </Col>
       </Row>
     </Container>
   );
